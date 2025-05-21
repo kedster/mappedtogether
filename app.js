@@ -1,6 +1,8 @@
 import { geocodeWithHere } from './geocode.js';
 import { Point } from './point.js';
 
+const geoCache = {};
+
 class DistanceApp {
     constructor() {
         // Get DOM elements
@@ -209,7 +211,7 @@ class DistanceApp {
         try {
             this.log('Getting longitude and latitude from addresses...');
 
-            // Helper to geocode a file input and return array of Points, with progress logging
+            // Helper to geocode a file input and return array of Points, with progress logging, deduplication, and caching
             const geocodeCSVToPoints = async (inputElement, label) => {
                 return new Promise((resolve) => {
                     const file = inputElement.files[0];
@@ -230,139 +232,67 @@ class DistanceApp {
                             try {
                                 const data = results.data;
                                 this.log(`[${label}] Parsed rows: ${data.length}`);
-                                console.log(`[${label}] First row:`, data[0]);
                                 if (!data || data.length === 0) {
                                     this.log(`[${label}] No data found in CSV.`);
                                     resolve([]);
                                     return;
                                 }
-                                const output = [];
-                                const HERE_API_KEYS = [];
-                                let total = data.length;
-                                let done = 0;
 
-                                const geocodeWithFallback = async (address, zip, apiKey, i, name, label) => {
-                                    let geo = null;
-                                    try {
-                                        if (address) {
-                                            this.log(`[${label}] Geocoding address for ${name} (${i + 1}/${total})...`);
-                                            geo = await geocodeWithHere(address, apiKey, i);
-                                        }
-                                        if ((!geo || !geo.lat || !geo.lng) && zip) {
-                                            this.log(`[${label}] Address failed, trying zip for ${name} (${i + 1}/${total})...`);
-                                            geo = await geocodeWithHere(zip, apiKey, i);
-                                        }
-                                    } catch (err) {
-                                        this.log(`[${label}] Geocoding error for ${name}: ${err}`);
+                                // Step 1: Build normalized address strings for deduplication
+                                const addressRows = data.map((row, i) => {
+                                    const normalizedRow = {};
+                                    Object.keys(row).forEach(k => {
+                                        normalizedRow[k.toLowerCase()] = row[k];
+                                    });
+                                    const rawAddress = (normalizedRow['address'] || normalizedRow['addr'] || normalizedRow['location'] || '').trim();
+                                    const city = (normalizedRow['city'] || '').trim();
+                                    const state = (normalizedRow['state'] || '').trim();
+                                    const zip = (normalizedRow['zip'] || normalizedRow['zipcode'] || normalizedRow['postal'] || '').toString().trim();
+                                    let searchTerm = '';
+                                    if (rawAddress && (!city && !state && !zip)) {
+                                        searchTerm = rawAddress;
+                                    } else if (rawAddress) {
+                                        searchTerm = rawAddress;
+                                        if (city) searchTerm += `, ${city}`;
+                                        if (state) searchTerm += `, ${state}`;
+                                        if (zip) searchTerm += `, ${zip}`;
+                                    } else if (city || state || zip) {
+                                        searchTerm = [city, state, zip].filter(Boolean).join(', ');
                                     }
-                                    return geo;
-                                };
+                                    return {
+                                        name: normalizedRow['name'] || `Row ${i + 1}`,
+                                        searchTerm,
+                                        rowIndex: i
+                                    };
+                                });
 
-                                for (let i = 0; i < data.length; i += 2) {
-                                    const tasks = [];
-                                    if (data[i]) {
-                                        tasks.push((async () => {
-                                            try {
-                                                const row = data[i];
+                                // Step 2: Deduplicate addresses
+                                const uniqueAddresses = {};
+                                addressRows.forEach(({ searchTerm }, i) => {
+                                    if (searchTerm) uniqueAddresses[searchTerm] = true;
+                                });
+                                const uniqueList = Object.keys(uniqueAddresses);
 
-                                                // Normalize keys to lowercase for robust access
-                                                const normalizedRow = {};
-                                                Object.keys(row).forEach(k => {
-                                                    normalizedRow[k.toLowerCase()] = row[k];
-                                                });
-
-                                                // Now use normalizedRow instead of row
-                                                const rawAddress = (normalizedRow['address'] || normalizedRow['addr'] || normalizedRow['location'] || '').trim();
-                                                const city = (normalizedRow['city'] || '').trim();
-                                                let state = (normalizedRow['state'] || '').trim();
-                                                let zip = (normalizedRow['zip'] || normalizedRow['zipcode'] || normalizedRow['postal'] || '').toString().trim();
-                                                const name = normalizedRow['name'] || `Row ${i + 1}`;
-
-                                                // If rawAddress looks like a full address, use it directly
-                                                let searchTerm = '';
-                                                if (rawAddress && (!city && !state && !zip)) {
-                                                    searchTerm = rawAddress;
-                                                } else if (rawAddress) {
-                                                    searchTerm = rawAddress;
-                                                    if (city) searchTerm += `, ${city}`;
-                                                    if (state) searchTerm += `, ${state}`;
-                                                    if (zip) searchTerm += `, ${zip}`;
-                                                } else if (city || state || zip) {
-                                                    searchTerm = [city, state, zip].filter(Boolean).join(', ');
-                                                }
-
-                                                // Only skip if nothing is present
-                                                if (!searchTerm) {
-                                                    this.log(`[${label}] No address, city, state, or zip for ${name} (${i + 1}/${total}), skipping.`);
-                                                    done++;
-                                                    return;
-                                                }
-                                                const geo = await geocodeWithFallback(searchTerm, zip, HERE_API_KEYS[0], i, name, label);
-                                                if (geo && geo.lat && geo.lng) {
-                                                    output[i] = new Point(name, geo.lat, geo.lng);
-                                                } else {
-                                                    this.log(`[${label}] Failed to geocode ${name} (${i + 1}/${total}).`);
-                                                }
-                                            } catch (err) {
-                                                this.log(`[${label}] Unexpected error for ${i + 1}: ${err}`);
-                                            }
-                                            done++;
-                                            this.log(`[${label}] Lookup progress: ${done} of ${total} complete.`);
-                                        })());
+                                // Step 3: Geocode unique addresses with caching
+                                for (let addr of uniqueList) {
+                                    if (!geoCache[addr]) {
+                                        this.log(`[${label}] Geocoding: ${addr}`);
+                                        geoCache[addr] = await geocodeWithHere(addr, 0);
                                     }
-                                    if (data[i + 1]) {
-                                        tasks.push((async () => {
-                                            try {
-                                                const row = data[i + 1];
-
-                                                // Normalize keys to lowercase for robust access
-                                                const normalizedRow = {};
-                                                Object.keys(row).forEach(k => {
-                                                    normalizedRow[k.toLowerCase()] = row[k];
-                                                });
-
-                                                // Now use normalizedRow instead of row
-                                                const rawAddress = (normalizedRow['address'] || normalizedRow['addr'] || normalizedRow['location'] || '').trim();
-                                                const city = (normalizedRow['city'] || '').trim();
-                                                let state = (normalizedRow['state'] || '').trim();
-                                                let zip = (normalizedRow['zip'] || normalizedRow['zipcode'] || normalizedRow['postal'] || '').toString().trim();
-                                                const name = normalizedRow['name'] || `Row ${i + 2}`;
-
-                                                // If rawAddress looks like a full address, use it directly
-                                                let searchTerm = '';
-                                                if (rawAddress && (!city && !state && !zip)) {
-                                                    searchTerm = rawAddress;
-                                                } else if (rawAddress) {
-                                                    searchTerm = rawAddress;
-                                                    if (city) searchTerm += `, ${city}`;
-                                                    if (state) searchTerm += `, ${state}`;
-                                                    if (zip) searchTerm += `, ${zip}`;
-                                                } else if (city || state || zip) {
-                                                    searchTerm = [city, state, zip].filter(Boolean).join(', ');
-                                                }
-
-                                                // Only skip if nothing is present
-                                                if (!searchTerm) {
-                                                    this.log(`[${label}] No address, city, state, or zip for ${name} (${i + 2}/${total}), skipping.`);
-                                                    done++;
-                                                    return;
-                                                }
-                                                const geo = await geocodeWithFallback(searchTerm, zip, HERE_API_KEYS[1], i + 1, name, label);
-                                                if (geo && geo.lat && geo.lng) {
-                                                    output[i + 1] = new Point(name, geo.lat, geo.lng);
-                                                } else {
-                                                    this.log(`[${label}] Failed to geocode ${name} (${i + 2}/${total}).`);
-                                                }
-                                            } catch (err) {
-                                                this.log(`[${label}] Unexpected error for ${i + 2}: ${err}`);
-                                            }
-                                            done++;
-                                            this.log(`[${label}] Lookup progress: ${done} of ${total} complete.`);
-                                        })());
-                                    }
-                                    await Promise.all(tasks);
                                 }
-                                this.log(`[${label}] Geocoding complete. (${done} of ${total} processed)`);
+
+                                // Step 4: Map geocode results back to original rows
+                                const output = [];
+                                addressRows.forEach(({ name, searchTerm }, i) => {
+                                    const geo = geoCache[searchTerm];
+                                    if (geo && geo.lat && geo.lng) {
+                                        output[i] = new Point(name, geo.lat, geo.lng);
+                                    } else {
+                                        this.log(`[${label}] Failed to geocode ${name} (${i + 1}).`);
+                                    }
+                                });
+
+                                this.log(`[${label}] Geocoding complete. (${output.filter(Boolean).length} of ${data.length} processed)`);
                                 resolve(output.filter(Boolean));
                             } catch (err) {
                                 this.log(`[${label}] Fatal error during geocoding: ${err}`);
@@ -749,5 +679,6 @@ function updateResultContent(closestBases) {
 window.addEventListener('DOMContentLoaded', () => {
     window.scrollTo(0, 0);
 });
+
 
 
