@@ -65,16 +65,12 @@
 
     // Section 2: Geocode Tests
     async function testGeocodeWithHere() {
-      const API_KEY = "rZr_o4Wn8QDHAlJLQtfhK6pZRY0ha6IgMnLNFqbtkfo";
-      let result = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", API_KEY, 0);
+      let result = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", 0);
       logResult("geocodeWithHere returns object", typeof result === "object" && result !== null, "geocodeTests");
       logResult("geocodeWithHere returns lat/lng", result && typeof result.lat === "number" && typeof result.lng === "number", "geocodeTests");
 
-      let badResult = await geocodeWithHere("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", API_KEY, 1);
+      let badResult = await geocodeWithHere("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", 1);
       logResult("geocodeWithHere returns null for bad address", badResult === null, "geocodeTests");
-
-      let noKeyResult = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", "", 2);
-      logResult("geocodeWithHere returns null for missing API key", noKeyResult === null, "geocodeTests");
     }
 
     // Section 3: Distance Matrix
