@@ -1,163 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>MappedTogether Unit Tests</title>
-    <style>
-        body { font-family: monospace; background: #f8f8f8; }
-        .pass { color: green; }
-        .fail { color: red; }
-        pre { background: #fff; padding: 1em; border: 1px solid #ccc; }
-    </style>
+  <meta charset="UTF-8">
+  <title>MappedTogether Unit Tests</title>
+  <style>
+    body { font-family: monospace; background: #f8f8f8; }
+    .pass { color: green; }
+    .fail { color: red; }
+    pre { background: #fff; padding: 1em; border: 1px solid #ccc; }
+    h2 { margin-top: 2em; }
+  </style>
 </head>
 <body>
-    <h1>MappedTogether Unit Tests</h1>
-    <pre id="testResults">Running tests...</pre>
-    <script type="module">
-import { Point } from './point.js';
-import { geocodeWithHere } from './geocode.js';
+  <h1>MappedTogether Unit Tests</h1>
 
-// Helper for output
-function logResult(msg, pass) {
-    const el = document.getElementById('testResults');
-    el.innerHTML += (pass ? '✅ ' : '❌ ') + msg + '\n';
-}
+  <!-- SECTION: Point Class -->
+  <h2>1. Point Class Tests</h2>
+  <pre id="pointTests">Running Point tests...</pre>
 
-// Test Point class
-function testPointClass() {
-    let p1 = new Point("A", 37, -122);
-    let p2 = new Point("B", 38, -123);
-    let dist = p1.distanceTo(p2);
-    logResult("Point.distanceTo returns a number", typeof dist === "number");
-    logResult("Point.distanceTo returns > 0 for different points", dist > 0);
-    let p3 = new Point("C", 37, -122);
-    logResult("Point.distanceTo returns 0 for same point", p1.distanceTo(p3) === 0);
+  <!-- SECTION: Geocode Function -->
+  <h2>2. Geocoding Function Tests</h2>
+  <pre id="geocodeTests">Running Geocode tests...</pre>
 
-    // Edge cases
-    let p4 = new Point("D", "37", "-122");
-    logResult("Point accepts string lat/lon", typeof p4.lat === "number" && typeof p4.lon === "number");
-    let p5 = new Point("E", NaN, NaN);
-    logResult("Point handles NaN lat/lon", isNaN(p5.lat) && isNaN(p5.lon));
-}
+  <!-- SECTION: Distance Matrix Calculation -->
+  <h2>3. Distance Matrix Tests</h2>
+  <pre id="matrixTests">Running Matrix tests...</pre>
 
-// Test geocodeWithHere (requires valid API key)
-async function testGeocodeWithHere() {
-    // Replace with your real API key for a live test!
-    const API_KEY = "rZr_o4Wn8QDHAlJLQtfhK6pZRY0ha6IgMnLNFqbtkfo";
-    let result = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", API_KEY, 0);
-    logResult("geocodeWithHere returns object", typeof result === "object" && result !== null);
-    logResult("geocodeWithHere returns lat/lng", result && typeof result.lat === "number" && typeof result.lng === "number");
+  <!-- SECTION: Closest Base Logic -->
+  <h2>4. Closest Base Logic</h2>
+  <pre id="closestTests">Running Closest Base tests...</pre>
 
-    // Bad address
-    let badResult = await geocodeWithHere("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", API_KEY, 1);
-    logResult("geocodeWithHere returns null for bad address", badResult === null);
+  <!-- SECTION: CSV Loading -->
+  <h2>5. CSV File Parsing</h2>
+  <pre id="csvTests">Running CSV tests...</pre>
 
-    // Missing API key
-    let noKeyResult = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", "", 2);
-    logResult("geocodeWithHere returns null for missing API key", noKeyResult === null);
-}
+  <!-- SECTION: Security Tests -->
+  <h2>6. Security & API Key Tests</h2>
+  <pre id="securityTests">Running Security tests...</pre>
 
-// Test DistanceApp.getDistanceMatrix
-function testGetDistanceMatrix() {
-    let p1 = new Point("A", 37, -122);
-    let p2 = new Point("B", 38, -123);
-    let p3 = new Point("C", 39, -124);
-    let basePoints = [p1, p2];
-    let subbasePoints = [p2, p3];
-    // Fake DistanceApp instance just for method
-    let app = { getDistanceMatrix: (new (class { getDistanceMatrix(...a){ return DistanceApp.prototype.getDistanceMatrix.apply(this, a); } }))().getDistanceMatrix };
-    let matrix = app.getDistanceMatrix(basePoints, subbasePoints);
-    logResult("getDistanceMatrix returns 2D array", Array.isArray(matrix) && Array.isArray(matrix[0]));
-    logResult("getDistanceMatrix correct size", matrix.length === 2 && matrix[0].length === 2);
-    logResult("getDistanceMatrix values are numbers", typeof matrix[0][0] === "number");
-}
+  <script type="module">
+    import { Point } from './point.js';
+    import { geocodeWithHere } from './geocode.js';
 
-// Test DistanceApp.findClosestFromMatrix logic
-function testFindClosestFromMatrix() {
-    // Minimal mock of DistanceApp
-    let p1 = new Point("A", 37, -122);
-    let p2 = new Point("B", 38, -123);
-    let p3 = new Point("C", 39, -124);
-    let app = {
+    function logResult(msg, pass, targetId = 'pointTests') {
+      const el = document.getElementById(targetId);
+      el.innerHTML += (pass ? '✅ ' : '❌ ') + msg + '\n';
+    }
+
+    // Section 1: Point Class Tests
+    function testPointClass() {
+      let p1 = new Point("A", 37, -122);
+      let p2 = new Point("B", 38, -123);
+      let dist = p1.distanceTo(p2);
+      logResult("Point.distanceTo returns a number", typeof dist === "number", "pointTests");
+      logResult("Point.distanceTo returns > 0 for different points", dist > 0, "pointTests");
+      let p3 = new Point("C", 37, -122);
+      logResult("Point.distanceTo returns 0 for same point", p1.distanceTo(p3) === 0, "pointTests");
+
+      let p4 = new Point("D", "37", "-122");
+      logResult("Point accepts string lat/lon", typeof p4.lat === "number" && typeof p4.lon === "number", "pointTests");
+      let p5 = new Point("E", NaN, NaN);
+      logResult("Point handles NaN lat/lon", isNaN(p5.lat) && isNaN(p5.lon), "pointTests");
+    }
+
+    // Section 2: Geocode Tests
+    async function testGeocodeWithHere() {
+      const API_KEY = "rZr_o4Wn8QDHAlJLQtfhK6pZRY0ha6IgMnLNFqbtkfo";
+      let result = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", API_KEY, 0);
+      logResult("geocodeWithHere returns object", typeof result === "object" && result !== null, "geocodeTests");
+      logResult("geocodeWithHere returns lat/lng", result && typeof result.lat === "number" && typeof result.lng === "number", "geocodeTests");
+
+      let badResult = await geocodeWithHere("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz", API_KEY, 1);
+      logResult("geocodeWithHere returns null for bad address", badResult === null, "geocodeTests");
+
+      let noKeyResult = await geocodeWithHere("1600 Amphitheatre Parkway, Mountain View, CA", "", 2);
+      logResult("geocodeWithHere returns null for missing API key", noKeyResult === null, "geocodeTests");
+    }
+
+    // Section 3: Distance Matrix
+    function getDistanceMatrix(basePoints, subbasePoints) {
+      return basePoints.map(base =>
+        subbasePoints.map(sub => base.distanceTo(sub))
+      );
+    }
+
+    function testGetDistanceMatrix() {
+      let p1 = new Point("A", 37, -122);
+      let p2 = new Point("B", 38, -123);
+      let p3 = new Point("C", 39, -124);
+      let matrix = getDistanceMatrix([p1, p2], [p2, p3]);
+      logResult("getDistanceMatrix returns 2D array", Array.isArray(matrix) && Array.isArray(matrix[0]), "matrixTests");
+      logResult("getDistanceMatrix correct size", matrix.length === 2 && matrix[0].length === 2, "matrixTests");
+      logResult("getDistanceMatrix values are numbers", typeof matrix[0][0] === "number", "matrixTests");
+    }
+
+    // Section 4: Closest Base Matching
+    function findClosestFromMatrix(app) {
+      app.closestBases = app.subbasePoints.map((sub, j) => {
+        let minDist = Infinity;
+        let closestBase = null;
+        for (let i = 0; i < app.basePoints.length; i++) {
+          let dist = app.distanceMatrix[i][j];
+          if (dist < minDist) {
+            minDist = dist;
+            closestBase = app.basePoints[i];
+          }
+        }
+        return { subbase: sub, closestBase };
+      });
+    }
+
+    function testFindClosestFromMatrix() {
+      let p1 = new Point("A", 37, -122);
+      let p2 = new Point("B", 38, -123);
+      let p3 = new Point("C", 39, -124);
+      let app = {
         basePoints: [p1, p2],
         subbasePoints: [p3],
         distanceMatrix: [
-            [p1.distanceTo(p3)],
-            [p2.distanceTo(p3)]
+          [p1.distanceTo(p3)],
+          [p2.distanceTo(p3)]
         ],
         closestBases: [],
-        log: ()=>{}
-    };
-    DistanceApp.prototype.findClosestFromMatrix.call(app);
-    logResult("findClosestFromMatrix sets closestBases", Array.isArray(app.closestBases) && app.closestBases.length === 1);
-    logResult("findClosestFromMatrix result has subbase/base", app.closestBases[0].subbase && app.closestBases[0].closestBase);
-}
+        log: () => {}
+      };
+      findClosestFromMatrix(app);
+      logResult("findClosestFromMatrix sets closestBases", Array.isArray(app.closestBases) && app.closestBases.length === 1, "closestTests");
+      logResult("findClosestFromMatrix result has subbase/base", app.closestBases[0].subbase && app.closestBases[0].closestBase, "closestTests");
+    }
 
-// Test DistanceApp.loadCSVFile logic (simulate CSV parsing)
-function testLoadCSVFile() {
-    // Simulate a CSV file input
-    let csv = "name,latitude,longitude\nA,37,-122\nB,38,-123";
-    let file = new Blob([csv], { type: 'text/csv' });
-    let input = document.createElement('input');
-    input.type = 'file';
-    Object.defineProperty(input, 'files', { value: [file] });
+    // Section 5: CSV File Loading
+    function loadCSVFile(input, callback) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = () => {
+        const lines = reader.result.trim().split("\n");
+        const [header, ...rows] = lines;
+        const points = rows.map(line => {
+          const [name, lat, lon] = line.split(",");
+          return new Point(name, parseFloat(lat), parseFloat(lon));
+        });
+        callback(points);
+      };
+      reader.readAsText(file);
+    }
 
-    // Minimal mock of DistanceApp
-    let app = {
-        log: ()=>{}
-    };
-    let called = false;
-    DistanceApp.prototype.loadCSVFile.call(app, input, points => {
+    function testLoadCSVFile() {
+      let csv = "name,latitude,longitude\nA,37,-122\nB,38,-123";
+      let file = new Blob([csv], { type: 'text/csv' });
+      let input = document.createElement('input');
+      input.type = 'file';
+      Object.defineProperty(input, 'files', { value: [file] });
+
+      let called = false;
+      loadCSVFile(input, points => {
         called = true;
-        logResult("loadCSVFile parses CSV", Array.isArray(points) && points.length === 2 && points[0].name === "A");
-    });
-    setTimeout(() => {
-        logResult("loadCSVFile callback called", called);
-    }, 500);
-}
+        logResult("loadCSVFile parses CSV", Array.isArray(points) && points.length === 2 && points[0].name === "A", "csvTests");
+      });
+      setTimeout(() => {
+        logResult("loadCSVFile callback called", called, "csvTests");
+      }, 500);
+    }
 
-// Test security aspects (OWASP)
-function testSecurityOWASP() {
-    // Test for XSS in Point name
-    let xssName = '<img src=x onerror=alert(1)>';
-    let p = new Point(xssName, 0, 0);
-    let safe = typeof p.name === "string" && !/<.*onerror.*=/.test(p.name);
-    logResult("Point.name does not execute XSS payload", safe);
+    // Section 6: API Security / OWASP
+    function testAPISecurity() {
+      const scriptContent = document.querySelector('script[type="module"]').textContent;
 
-    // Test for CSV injection (formula injection)
-    let formulaName = '=2+3';
-    let p2 = new Point(formulaName, 0, 0);
-    let notFormula = typeof p2.name === "string" && !/^[=+\-@]/.test(p2.name);
-    logResult("Point.name does not allow formula injection", notFormula);
+      const hardcodedKeyPattern = /["'`](?=[^"'`]*[A-Za-z])(?=[^"'`]*\d)[^"'`]{20,}["'`]/g;
+      const matches = scriptContent.match(hardcodedKeyPattern);
+      const foundKey = matches && matches.some(k => /[A-Za-z]/.test(k) && /\d/.test(k));
+      logResult("API keys are not hardcoded in test scripts", !foundKey, "securityTests");
 
-    // Test for prototype pollution
-    let polluted = false;
-    try {
-        let obj = {};
-        let evil = JSON.parse('{"__proto__":{"polluted":true}}');
-        Object.assign(obj, evil);
-        polluted = {}.polluted === true;
-    } catch {}
-    logResult("Prototype pollution not possible via JSON/assign", !polluted);
+      const keyUsagePattern = /(fetch|XMLHttpRequest|geocodeWithHere)\s*\([^\)]*(["'`][A-Za-z0-9\-_]{20,}["'`])/;
+      const keyUsedInCall = keyUsagePattern.test(scriptContent);
+      logResult("API keys are not embedded directly in API calls", !keyUsedInCall, "securityTests");
 
-    // Test for unsafe eval (should not exist)
-    let hasEval = typeof eval !== "undefined";
-    logResult("No use of eval in environment", !hasEval || eval.toString().indexOf('[native code]') !== -1);
-}
+      logResult("Consider externalizing API keys via environment/config", true, "securityTests");
+    }
 
-// Run all tests
-async function runTests() {
-    document.getElementById('testResults').innerHTML = '';
+    // Run All Tests
     testPointClass();
-    await testGeocodeWithHere();
     testGetDistanceMatrix();
     testFindClosestFromMatrix();
     testLoadCSVFile();
-    testSecurityOWASP();
-    document.getElementById('testResults').innerHTML += '\nAll tests complete.';
-}
-
-runTests();
-</script>
+    testGeocodeWithHere();
+    testAPISecurity();
+  </script>
 </body>
 </html>

@@ -60,8 +60,8 @@ Subbase 2,40.7128,-74.0060
       <strong>Example Base CSV:</strong>
       <pre id="address-base">
 Name,Address,City,State,Zip
-Base 1,123 Main St,Los Angeles,CA,90012
-Base 2,456 Elm St,Chicago,IL,60601
+Base 1,1111 S Figueroa St,Los Angeles,CA,90015
+Base 2,233 S Wacker Dr,Chicago,IL,60606
       </pre>
       <button class="sample-btn" onclick="downloadSample('address-base')">Download Base CSV</button>
     </p>
@@ -71,6 +71,8 @@ Base 2,456 Elm St,Chicago,IL,60601
 Name,Address,City,State,Zip
 Subbase 1,789 Pine St,San Francisco,CA,94108
 Subbase 2,101 Maple Ave,New York,NY,10001
+Subbase 3,500 S Grand Ave,Los Angeles,CA,90071
+Subbase 4,233 S Wacker Dr,Chicago,IL,60606
       </pre>
       <button class="sample-btn" onclick="downloadSample('address-subbase')">Download Subbase CSV</button>
     </p>
@@ -81,8 +83,10 @@ Subbase 2,101 Maple Ave,New York,NY,10001
           <strong>Full Address in One Column:</strong>
           <pre id="address-full">
 Name,Address
-Base 1,"123 Main St, Los Angeles, CA 90012"
-Base 2,"456 Elm St, Chicago, IL 60601"
+Base Alpha,"1600 Pennsylvania Ave NW, Washington, DC 20500"
+Base Bravo,"1 Infinite Loop, Cupertino, CA 95014"
+Base Charlie,"350 Fifth Avenue, New York, NY 10118"
+Base Delta,"600 Congress Ave, Austin, TX 78701"
           </pre>
           <button class="sample-btn" onclick="downloadSample('address-full')">Download Example</button>
         </li>
@@ -90,8 +94,10 @@ Base 2,"456 Elm St, Chicago, IL 60601"
           <strong>Minimal Columns (City/State/Zip Only):</strong>
           <pre id="address-minimal">
 Name,City,State,Zip
-Base 1,Los Angeles,CA,90012
-Base 2,Chicago,IL,60601
+Base Alpha,Austin,TX,73301
+Base Bravo,Seattle,WA,98101
+Base Charlie,Miami,FL,33101
+Base Delta,Boston,MA,02108
           </pre>
           <button class="sample-btn" onclick="downloadSample('address-minimal')">Download Example</button>
         </li>
@@ -99,8 +105,10 @@ Base 2,Chicago,IL,60601
           <strong>Address with City and State Only:</strong>
           <pre id="address-citystate">
 Name,Address,City,State
-Base 1,123 Main St,Los Angeles,CA
-Base 2,456 Elm St,Chicago,IL
+Base Alpha,1600 Amphitheatre Parkway,Mountain View,CA
+Base Bravo,1 Microsoft Way,Redmond,WA
+Base Charlie,350 Fifth Avenue,New York,NY
+Base Delta,500 S Buena Vista St,Burbank,CA
           </pre>
           <button class="sample-btn" onclick="downloadSample('address-citystate')">Download Example</button>
         </li>
