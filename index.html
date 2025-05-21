@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapped Together</title>
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Include Leaflet CSS and JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <script>
+    window.scrollTo(0, 0);
+  </script>
+
+  <noscript>
+    <p class="no-js-warning">JavaScript is required to use this application. Please enable JavaScript in your browser.</p>
+  </noscript>
+
+  <div style="text-align: center; margin-top: 28px; margin-bottom: 10px;">
+    <h1 style="margin-bottom: 8px;">Mapped Together</h1>
+    <a href="csvhelp.html">
+      <button type="button" style="font-size: 1em; padding: 6px 16px;">CSV Help</button>
+    </a>
+    <a href="examples.html">
+      <button type="button" style="font-size: 1em; padding: 6px 16px;">Examples</button>
+    </a>
+  </div>
+
+  <div class="description-box">
+    <strong>What is Mapped Together?</strong><br />
+    Mapped Together helps you analyze the spatial relationship between two sets of locations by uploading <b>two CSV files</b>: one for your "bases" and one for your "subbases." You can use either coordinates (latitude/longitude) or street addresses in your CSVs. The app will calculate the distance between every base and subbase, show you which base is closest to each subbase, and let you export the results or view them on an interactive map.<br /><br />
+    <strong>Free Geocoding:</strong> If you upload addresses (instead of lat/lon), Mapped Together will automatically look up and provide the latitude and longitude for every address you upload—at no cost to you—using the HERE Geocoding API.<br /><br />
+    <strong>How to use:</strong>
+    <ol style="margin-top: 6px;">
+      <li>Prepare two CSV files: one for bases, one for subbases. Each should have either coordinates or addresses.</li>
+      <li>Select your input type (LongLat or Address) above.</li>
+      <li>Upload your base and subbase CSV files using the boxes below.</li>
+      <li>Click "Calculate Distances" to see the closest matches, export results, or view them on the map.</li>
+    </ol>
+  </div>
+
+  <div class="radio-group" style="text-align: center; margin-bottom: 20px;">
+    <label>
+      <input type="radio" name="inputType" value="longlat" checked />
+      LongLat
+    </label>
+    <label style="margin-left: 20px;">
+      <input type="radio" name="inputType" value="address" />
+      Address
+    </label>
+  </div>
+
+  <div class="example-csv-section">
+    <strong>Example CSV Format (Upload a file like this for both Base and Subbase):</strong>
+    <pre class="example-csv example-longlat">
+Name,Latitude,Longitude
+Location 1,34.0522,-118.2437
+Location 2,41.8781,-87.6298
+    </pre>
+    <pre class="example-csv example-address">
+Name,Address,City,State,Zip
+Location 1,123 Main St,Los Angeles,CA,90012
+Location 2,456 Oak Ave,Chicago,IL,60601
+    </pre>
+  </div>
+
+  <!-- Place this where your three boxes are rendered -->
+  <div class="csv-flex-row">
+    <!-- Base CSV Box -->
+    <div class="csv-box">
+      <p><strong>Base CSV:</strong></p>
+      <p>Upload a CSV file containing the base locations with columns for Name, Latitude, and Longitude.</p>
+      <input type="file" id="baseFile" accept=".csv" aria-label="Upload Base CSV" />
+      <label for="baseFile">Upload Base CSV</label>
+    </div>
+    <!-- Subbase CSV Box -->
+    <div class="csv-box">
+      <p><strong>Subbase CSV:</strong></p>
+      <p>Upload a CSV file containing the subbase locations with columns for Name, Latitude, and Longitude.</p>
+      <input type="file" id="subbaseFile" accept=".csv" aria-label="Upload Subbase CSV" />
+      <label for="subbaseFile">Upload Subbase CSV</label>
+    </div>
+  </div>
+  <div class="button-group">
+    <button id="calculateBtn" aria-label="Calculate Distances">Calculate Distances</button>
+    <!-- <button id="findClosestBtn" aria-label="Find Closest Bases">Find Closest Bases</button> -->
+  </div>
+
+  <!--  <div id="statusLog" aria-live="polite"></div>-->
+
+  <!--  <div id="result"></div>-->
+
+  <!-- Toggle Results Button -->
+  <button id="toggleResultBtn"><span id="caretIcon">&#9660;</span> Toggle Results</button>
+  <div id="resultContent"></div>
+
+  <div id="mapControls">
+    <button id="exportBtn" aria-label="Export Closest Bases">Export Closest Bases</button>
+    <button id="applyToMapBtn" aria-label="Apply Points to Map">Apply Points to Map</button>
+  </div>
+  <div id="map"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

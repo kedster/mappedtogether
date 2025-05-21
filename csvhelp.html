@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CSV Format Help - Mapped Together</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body { max-width: 800px; margin: 30px auto; font-family: Arial, sans-serif; background: #f9f9fc; }
+    h1, h2 { color: #2a3a4a; }
+    pre { background: #f4f4f4; border: 1px solid #ccc; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    .sample-btn { margin: 10px 0 30px 0; }
+    .back-link { display: inline-block; margin-bottom: 20px; }
+    .format-section { margin-bottom: 32px; }
+    ul { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">&larr; Back to Main Page</a>
+  <h1>CSV Format Help</h1>
+  <p>
+    This page explains the accepted CSV formats for uploading base and subbase locations in <strong>Mapped Together</strong>. You can also download ready-to-use sample CSV files below.
+  </p>
+
+  <div class="format-section">
+    <h2>1. Latitude/Longitude Format (Recommended for Precision)</h2>
+    <p>
+      <strong>Each file must have a header row:</strong>
+      <br>
+      <code>Name,Latitude,Longitude</code>
+    </p>
+    <p>
+      <strong>Example Base CSV:</strong>
+      <pre id="latlon-base">
+Name,Latitude,Longitude
+Base 1,34.0522,-118.2437
+Base 2,41.8781,-87.6298
+      </pre>
+      <button class="sample-btn" onclick="downloadSample('latlon-base')">Download Base CSV</button>
+    </p>
+    <p>
+      <strong>Example Subbase CSV:</strong>
+      <pre id="latlon-subbase">
+Name,Latitude,Longitude
+Subbase 1,37.7749,-122.4194
+Subbase 2,40.7128,-74.0060
+      </pre>
+      <button class="sample-btn" onclick="downloadSample('latlon-subbase')">Download Subbase CSV</button>
+    </p>
+  </div>
+
+  <div class="format-section">
+    <h2>2. Address Format (Flexible, Geocoded Automatically)</h2>
+    <p>
+      <strong>Recommended columns:</strong>
+      <br>
+      <code>Name,Address,City,State,Zip</code>
+    </p>
+    <p>
+      <strong>Example Base CSV:</strong>
+      <pre id="address-base">
+Name,Address,City,State,Zip
+Base 1,123 Main St,Los Angeles,CA,90012
+Base 2,456 Elm St,Chicago,IL,60601
+      </pre>
+      <button class="sample-btn" onclick="downloadSample('address-base')">Download Base CSV</button>
+    </p>
+    <p>
+      <strong>Example Subbase CSV:</strong>
+      <pre id="address-subbase">
+Name,Address,City,State,Zip
+Subbase 1,789 Pine St,San Francisco,CA,94108
+Subbase 2,101 Maple Ave,New York,NY,10001
+      </pre>
+      <button class="sample-btn" onclick="downloadSample('address-subbase')">Download Subbase CSV</button>
+    </p>
+    <p>
+      <strong>Alternative Address Formats Allowed:</strong>
+      <ul>
+        <li>
+          <strong>Full Address in One Column:</strong>
+          <pre id="address-full">
+Name,Address
+Base 1,"123 Main St, Los Angeles, CA 90012"
+Base 2,"456 Elm St, Chicago, IL 60601"
+          </pre>
+          <button class="sample-btn" onclick="downloadSample('address-full')">Download Example</button>
+        </li>
+        <li>
+          <strong>Minimal Columns (City/State/Zip Only):</strong>
+          <pre id="address-minimal">
+Name,City,State,Zip
+Base 1,Los Angeles,CA,90012
+Base 2,Chicago,IL,60601
+          </pre>
+          <button class="sample-btn" onclick="downloadSample('address-minimal')">Download Example</button>
+        </li>
+        <li>
+          <strong>Address with City and State Only:</strong>
+          <pre id="address-citystate">
+Name,Address,City,State
+Base 1,123 Main St,Los Angeles,CA
+Base 2,456 Elm St,Chicago,IL
+          </pre>
+          <button class="sample-btn" onclick="downloadSample('address-citystate')">Download Example</button>
+        </li>
+      </ul>
+      <em>
+        The more columns you provide, the more accurate the geocoding will be. The app will combine available columns to form the address for lookup.
+      </em>
+    </p>
+  </div>
+
+  <div class="format-section">
+    <h2>General Notes</h2>
+    <ul>
+      <li>Upload <strong>separate files</strong> for bases and subbases.</li>
+      <li>Each file must have a header row matching the format above.</li>
+      <li>Do not mix bases and subbases in the same file.</li>
+      <li>For address mode, avoid extra commas in address fields unless quoted.</li>
+    </ul>
+  </div>
+
+  <script>
+    function downloadSample(id) {
+      const text = document.getElementById(id).innerText.trim();
+      const filename = id.replace('-', '_') + '.csv';
+      const blob = new Blob([text], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

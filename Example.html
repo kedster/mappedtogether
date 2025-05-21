@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapped Together Example</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8fa;
+      margin: 0;
+      padding: 0;
+    }
+    .example-container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #0001;
+      padding: 32px 32px 24px 32px;
+    }
+    .example-header {
+      font-size: 1.7em;
+      margin-bottom: 28px;
+      color: #234;
+      text-align: center;
+    }
+    .example-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 32px;
+      margin-bottom: 40px;
+      background: #f7fafd;
+      border-radius: 8px;
+      padding: 18px 18px 18px 18px;
+      box-shadow: 0 1px 4px #0001;
+    }
+    .example-img {
+      max-width: 340px;
+      border: 1px solid #bcd;
+      border-radius: 6px;
+      background: #f3f7fa;
+      box-shadow: 0 1px 4px #0001;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .example-img:hover {
+      box-shadow: 0 4px 24px #0003;
+      transform: scale(1.03);
+    }
+    .example-caption {
+      flex: 1;
+      font-size: 1.13em;
+      color: #234;
+      margin-top: 0;
+      margin-left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .back-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: #2066cc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.open {
+      display: flex;
+    }
+    .modal-img {
+      max-width: 90vw;
+      max-height: 90vh;
+      border-radius: 8px;
+      box-shadow: 0 8px 32px #0008;
+      background: #fff;
+      padding: 8px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 32px;
+      right: 48px;
+      font-size: 2.5em;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 1100;
+      text-shadow: 0 2px 8px #000a;
+    }
+    @media (max-width: 800px) {
+      .example-step {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .example-img {
+        max-width: 98vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="example-container">
+    <div class="example-header">Mapped Together: Step-by-Step Example</div>
+
+    <!-- Step 1: Upload CSVs -->
+    <div class="example-step">
+      <img src="examples/Fileupload.png" alt="examples/Fileupload.png" class="example-img" />
+      <img src="examples/filesuploaded.png" alt="examples/filesuploaded.png" class="example-img" />
+      <div class="example-caption">
+        <b>Step 1: Upload Your CSV Files</b><br>
+        Start by uploading <b>two CSV files</b>: one for your bases and one for your subbases. Each file should have either coordinates (latitude/longitude) or addresses. The app will use these files to calculate distances.
+      </div>
+    </div>
+
+    <!-- Step 2: See Table Results -->
+    <div class="example-step">
+      <img src="examples/closestmatches.png" alt="examples/closestmatches.png" class="example-img" />
+      <div class="example-caption">
+        <b>Step 2: View Closest Matches Table</b><br>
+        After calculation, you'll see a table showing which base is closest to each subbase, along with the distance in miles.
+      </div>
+    </div>
+
+    <!-- Step 3: Interactive Map -->
+    <div class="example-step">
+      <img src="examples/mappedlocationzoomout.png" alt="examples/mappedlocationzoomout.png" class="example-img" />
+      <div class="example-caption">
+        <b>Step 3: Visualize on the Map</b><br>
+        The interactive map displays all your bases and subbases. Lines connect each subbase to its nearest base, making it easy to see spatial relationships at a glance.
+      </div>
+    </div>
+
+    <!-- Step 4: Map Zoomed In -->
+    <div class="example-step">
+      <img src="examples/mappedlocationszoomin.png" alt="examples/mappedlocationszoomin.png" class="example-img" />
+      <div class="example-caption">
+        <b>Step 4: Zoom In for Details</b><br>
+        You can zoom in on the map to see more detail about the locations and their connections.
+      </div>
+    </div>
+
+    <!-- Step 5: Export Results -->
+    <div class="example-step">
+      <img src="examples/exportlocations.png" alt="examples/exportlocations.png" class="example-img" />
+      <div class="example-caption">
+        <b>Step 5: Export Results</b><br>
+        Export your results as a CSV file for further analysis or sharing.
+      </div>
+    </div>
+
+    <a class="back-link" href="index.html">&larr; Back to Main Page</a>
+  </div>
+
+  <!-- Modal for enlarged images -->
+  <div class="modal" id="imgModal">
+    <span class="modal-close" id="modalClose">&times;</span>
+    <img src="" alt="Enlarged Example" class="modal-img" id="modalImg" />
+  </div>
+  <script>
+    // Modal logic for enlarging images
+    document.querySelectorAll('.example-img').forEach(img => {
+      img.addEventListener('click', function() {
+        document.getElementById('modalImg').src = this.src;
+        document.getElementById('imgModal').classList.add('open');
+      });
+    });
+    document.getElementById('modalClose').onclick = function() {
+      document.getElementById('imgModal').classList.remove('open');
+      document.getElementById('modalImg').src = '';
+    };
+    document.getElementById('imgModal').onclick = function(e) {
+      if (e.target === this) {
+        this.classList.remove('open');
+        document.getElementById('modalImg').src = '';
+      }
+    };
+  </script>
+</body>
+</html>
