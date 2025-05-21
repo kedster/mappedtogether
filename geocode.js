@@ -1,13 +1,13 @@
 /**
  * Geocode a location using the HERE API.
  * @param {string} query - The address or location string to geocode.
- * @param {string} apiKey - Your HERE API key.
+ * - Your HERE API key.
  * @param {number} rowIndex - Row index for logging/debugging.
  * @returns {Promise<{lat: number, lng: number, label: string}|null>}
  */
-export async function geocodeWithHere(query, apiKey, rowIndex) {
-    // Ignore apiKey, use the proxy endpoint instead
-    const url = `https://quiet-river-3475.sethkeddy.workers.dev/?q=${encodeURIComponent(query)}`;
+export async function geocodeWithHere(query, rowIndex) {
+    const GEO_PROXY_ENDPOINT = "https://quiet-river-3475.sethkeddy.workers.dev/";
+    const url = `${GEO_PROXY_ENDPOINT}?q=${encodeURIComponent(query)}`;
     try {
         const response = await fetch(url);
         const data = await response.json();

@@ -237,10 +237,7 @@ class DistanceApp {
                                     return;
                                 }
                                 const output = [];
-                                const HERE_API_KEYS = [
-                                    "rZr_o4Wn8QDHAlJLQtfhK6pZRY0ha6IgMnLNFqbtkfo",
-                                    "-usDOmtyQs9EtjWUZmYZDi_yR5bAltpsTAdEFGvouVg"
-                                ];
+                                const HERE_API_KEYS = [];
                                 let total = data.length;
                                 let done = 0;
 
