@@ -231,33 +231,29 @@ class DistanceApp {
                         complete: async (results) => {
                             try {
                                 const data = results.data;
-                                this.log(`[${label}] Parsed rows: ${data.length}`);
-                                if (!data || data.length === 0) {
-                                    this.log(`[${label}] No data found in CSV.`);
-                                    resolve([]);
-                                    return;
-                                }
+                                const headers = results.meta.fields; // Array of column names in order
+                                const firstColKey = headers && headers.length > 0 ? headers[0] : null;
 
-                                // Step 1: Build normalized address strings for deduplication
                                 const addressRows = data.map((row, i) => {
-                                    const normalizedRow = {};
-                                    Object.keys(row).forEach(k => {
-                                        normalizedRow[k.toLowerCase()] = row[k];
-                                    });
+                                    // Always treat the first column as 'name'
+                                    let name = row[firstColKey] || `Row ${i + 1}`;
+
                                     const rawAddress = (normalizedRow['address'] || normalizedRow['addr'] || normalizedRow['location'] || '').trim();
                                     const city = (normalizedRow['city'] || '').trim();
                                     const state = (normalizedRow['state'] || '').trim();
                                     const zip = (normalizedRow['zip'] || normalizedRow['zipcode'] || normalizedRow['postal'] || '').toString().trim();
+
                                     const addressParts = [];
-                                    if (normalizedRow['name']) addressParts.push(normalizedRow['name']);
+                                    if (name) addressParts.push(name);
                                     if (normalizedRow['address']) addressParts.push(normalizedRow['address']);
                                     if (normalizedRow['street']) addressParts.push(normalizedRow['street']);
                                     if (normalizedRow['city']) addressParts.push(normalizedRow['city']);
                                     if (normalizedRow['state']) addressParts.push(normalizedRow['state']);
                                     if (normalizedRow['zip']) addressParts.push(normalizedRow['zip']);
                                     const searchTerm = addressParts.filter(Boolean).join(', ');
+
                                     return {
-                                        name: normalizedRow['name'] || `Row ${i + 1}`,
+                                        name,
                                         searchTerm,
                                         rowIndex: i
                                     };
