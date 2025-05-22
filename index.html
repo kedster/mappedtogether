@@ -20,8 +20,8 @@
     <p class="no-js-warning">JavaScript is required to use this application. Please enable JavaScript in your browser.</p>
   </noscript>
 
-  <div style="text-align: center; margin-top: 28px; margin-bottom: 10px;">
-    <h1 style="margin-bottom: 8px;">Mapped Together 1.0</h1>
+  <div class="header-section">
+    <h1>Mapped Together 1.0</h1>
     <a href="csvsamples.html" class="header-btn">CSV Samples</a>
     <a href="instructions.html" class="header-btn">Instructions</a>
     <a href="usecase.html" class="header-btn">Use Cases</a>
@@ -87,15 +87,9 @@ Location 2,456 Oak Ave,Chicago,IL,60601
     <button id="calculateBtn" aria-label="Calculate Distances">Calculate Distances</button>
     <!-- <button id="findClosestBtn" aria-label="Find Closest Bases">Find Closest Bases</button> -->
   </div>
-
   <!--  <div id="statusLog" aria-live="polite"></div>-->
-
   <!--  <div id="result"></div>-->
-
   <!-- Toggle Results Button -->
-  <button id="toggleResultBtn"><span id="caretIcon">&#9660;</span> Toggle Results</button>
-  <div id="resultContent"></div>
-
   <div id="mapControls">
     <button id="exportBtn" aria-label="Export Closest Bases">Export Closest Bases</button>
     <button id="applyToMapBtn" aria-label="Apply Points to Map">Apply Points to Map</button>
@@ -103,19 +97,10 @@ Location 2,456 Oak Ave,Chicago,IL,60601
   <div id="map"></div>
 
   <script type="module" src="app.js"></script>
-  <div style="
-  border:1px solid #ccc; 
-  padding:15px; 
-  background:#f9f9f9; 
-  font-family: Arial, sans-serif; 
-  font-size:14px; 
-  color:#333; 
-  max-width:600px; 
-  margin: 40px auto; 
-  text-align: center;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-">
+  <div class="privacy-notice-box">
+  <button id="toggleResultBtn"><span id="caretIcon">&#9660;</span> Toggle Results</button>
+  <div id="resultContent"></div>
+  
   <strong>Privacy Notice:</strong><br><br>
   Please note that any information you enter during this test is stored temporarily and <em>only</em> within your browser's local memory (such as session or local storage).<br><br>
   <ul style="list-style-position: inside; text-align: left; display: inline-block; padding-left: 0; margin: 0;">

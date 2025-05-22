@@ -677,7 +677,6 @@ function updateResultContent(closestBases) {
         return;
     }
 
-    // Create a table to display the results
     let tableHTML = `
     <table>
       <thead>
@@ -685,18 +684,24 @@ function updateResultContent(closestBases) {
           <th>Subbase</th>
           <th>Closest Base</th>
           <th>Distance (mi)</th>
+          <th>Lat, Lon</th>
         </tr>
       </thead>
       <tbody>
   `;
 
-    closestBases.forEach(({ subbase, closestBase, distance, lat, lon }) => {
+    closestBases.forEach(({ subbase, closestBase, distance }) => {
+        const subbaseName = subbase && subbase.name ? subbase.name : '';
+        const closestBaseName = closestBase && closestBase.name ? closestBase.name : '';
+        const dist = typeof distance === "number" && !isNaN(distance) ? distance.toFixed(2) : '';
+        const lat = subbase && typeof subbase.lat === "number" ? subbase.lat.toFixed(4) : '';
+        const lon = subbase && typeof subbase.lon === "number" ? subbase.lon.toFixed(4) : '';
         tableHTML += `
       <tr>
-        <td>${subbase.name}</td>
-        <td>${closestBase.name}</td>
-        <td>${distance.toFixed(2)}</td>
-        <td>${lat.toFixed(4)}, ${lon.toFixed(4)}</td>
+        <td>${subbaseName}</td>
+        <td>${closestBaseName}</td>
+        <td>${dist}</td>
+        <td>${lat}, ${lon}</td>
       </tr>
     `;
     });
