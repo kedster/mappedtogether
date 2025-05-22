@@ -29,20 +29,22 @@ export class Point {
 
 // Keep geocodeWithHere as a separate export if needed
 export async function geocodeWithHere(query, apiKey, rowIndex) {
-    const url = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(query)}&apiKey=${apiKey}`;
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
-        if (data.items && data.items.length > 0) {
-            const item = data.items[0];
+
+        if (data.results && data.results.length > 0) {
+            const result = data.results[0];
             return {
-                lat: item.position.lat,
-                lng: item.position.lng,
-                label: item.address.label
+                lat: result.geometry.location.lat,
+                lng: result.geometry.location.lng,
+                label: result.formatted_address
             };
         }
     } catch (e) {
         console.error(`Geocoding error for row ${rowIndex}:`, e);
     }
+
     return null;
 }
