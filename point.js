@@ -27,9 +27,10 @@ export class Point {
     }
 }
 
-// Keep geocodeWithHere as a separate export if needed
-export async function geocodeWithHere(query, apiKey, rowIndex) {
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`;
+// Secure frontend version – routes through your Cloudflare Worker
+export async function geocodeWithHere(query, rowIndex) {
+    const GEO_PROXY_ENDPOINT = "https://quiet-river-3475.sethkeddy.workers.dev/";
+    const url = `${GEO_PROXY_ENDPOINT}?q=${encodeURIComponent(query)}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
@@ -45,6 +46,5 @@ export async function geocodeWithHere(query, apiKey, rowIndex) {
     } catch (e) {
         console.error(`Geocoding error for row ${rowIndex}:`, e);
     }
-
     return null;
 }

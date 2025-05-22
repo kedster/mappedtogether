@@ -8,19 +8,22 @@
 export async function geocodeWithHere(query, rowIndex) {
     const GEO_PROXY_ENDPOINT = "https://quiet-river-3475.sethkeddy.workers.dev/";
     const url = `${GEO_PROXY_ENDPOINT}?q=${encodeURIComponent(query)}`;
+    
     try {
         const response = await fetch(url);
         const data = await response.json();
-        if (data.items && data.items.length > 0) {
-            const item = data.items[0];
+
+        if (data.results && data.results.length > 0) {
+            const result = data.results[0];
             return {
-                lat: item.position.lat,
-                lng: item.position.lng,
-                label: item.address.label
+                lat: result.geometry.location.lat,
+                lng: result.geometry.location.lng,
+                label: result.formatted_address
             };
         }
     } catch (e) {
         console.error(`Geocoding error for row ${rowIndex}:`, e);
     }
+
     return null;
 }
