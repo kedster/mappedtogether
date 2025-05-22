@@ -108,8 +108,8 @@ class DistanceApp {
         const findClosestBtn = document.getElementById('findClosestBtn');
         if (findClosestBtn) {
             findClosestBtn.addEventListener('click', () => {
-                this.findClosestFromMatrix();
-                updateResultContent(this.closestBases);
+                window.app.findClosestFromMatrix();
+                updateResultContent(window.app.closestBases);
             });
         }
 
@@ -216,25 +216,11 @@ calculateDistances() {
         }
     }
 
-    class ClosestBaseFinderStrategy {
-        execute(ctx) {
-            ctx.findClosestFromMatrix();
-            console.log('Closest Bases:', ctx.closestBases);
-        }
-    }
-
-    class ResultUpdaterStrategy {
-        execute(ctx) {
-            updateResultContent(ctx.closestBases);
-        }
-    }
-
     const strategies = [
         new ValidationStrategy('base'),
         new ValidationStrategy('subbase'),
-        new DistanceCalculationStrategy(),
-        new ClosestBaseFinderStrategy(),
-        new ResultUpdaterStrategy()
+        new DistanceCalculationStrategy()
+        // Do NOT include ClosestBaseFinderStrategy or ResultUpdaterStrategy here
     ];
 
     try {
@@ -245,6 +231,12 @@ calculateDistances() {
         console.error('Distance calculation aborted:', error.message);
     } finally {
         this.calculateBtn.disabled = false; // Re-enable button
+    }
+
+    // After successful distance calculation:
+    const findClosestBtn = document.getElementById('findClosestBtn');
+    if (findClosestBtn) {
+        findClosestBtn.disabled = false;
     }
 }
 
