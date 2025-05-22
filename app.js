@@ -165,80 +165,55 @@ class DistanceApp {
 
     // Existing longitude/latitude logic
 calculateDistances() {
-    this.calculateBtn.disabled = true; // Disable button
+        this.calculateBtn.disabled = true; // Disable button
+        // Debugging logs to check the state of basePoints and subbasePoints
+        console.log('Base Points:', this.basePoints);
+        console.log('Subbase Points:', this.subbasePoints);
 
-    // Debugging logs to check the state of basePoints and subbasePoints
-    console.log('Base Points:', this.basePoints);
-    console.log('Subbase Points:', this.subbasePoints);
-
-    const context = {
-        basePoints: this.basePoints,
-        subbasePoints: this.subbasePoints,
-        getDistanceMatrix: this.getDistanceMatrix.bind(this),
-        findClosestFromMatrix: this.findClosestFromMatrix.bind(this),
-        closestBases: this.closestBases,
-        log: this.log.bind(this)
-    };
-
-    class ValidationStrategy {
-        constructor(type) {
-            this.type = type;
+        if (!this.basePoints || this.basePoints.length === 0) {
+            this.log('Error: Base points are not loaded.');
+            alert(
+                'Please upload the Base CSV file in the correct format for your selected lookup type.\n\n' +
+                'You have selected "Latitude/Longitude" lookup, but your CSV does not match the expected format.\n\n' +
+                'If your file contains addresses (not latitude/longitude), please scroll up and select "Address" as the lookup type, then upload your file again.\n\n' +
+                'Expected CSV columns for "Latitude/Longitude" lookup: Name, Latitude, Longitude'
+            );
+            return;
+        }
+        if (!this.subbasePoints || this.subbasePoints.length === 0) {
+            this.log('Error: Subbase points are not loaded.');
+            alert(
+                'Please upload the Base CSV file in the correct format for your selected lookup type.\n\n' +
+                'You have selected "Latitude/Longitude" lookup, but your CSV does not match the expected format.\n\n' +
+                'If your file contains addresses (not latitude/longitude), please scroll up and select "Address" as the lookup type, then upload your file again.\n\n' +
+                'Expected CSV columns for "Latitude/Longitude" lookup: Name, Latitude, Longitude'
+            );
+            return;
         }
 
-        execute(ctx) {
-            const points = this.type === 'base' ? ctx.basePoints : ctx.subbasePoints;
-            if (!points || points.length === 0) {
-                const label = this.type === 'base' ? 'Base' : 'Subbase';
-                ctx.log(`Error: ${label} points are not loaded.`);
-                alert(
-                    `Please upload the ${label} CSV file in the correct format for your selected lookup type.\n\n` +
-                    'You have selected "Latitude/Longitude" lookup, but your CSV does not match the expected format.\n\n' +
-                    'If your file contains addresses (not latitude/longitude), please scroll up and select "Address" as the lookup type, then upload your file again.\n\n' +
-                    'Expected CSV columns for "Latitude/Longitude" lookup: Name, Latitude, Longitude'
-                );
-                throw new Error(`${label} validation failed`);
-            }
+        this.log('Starting distance calculations...');
+        this.distanceMatrix = this.getDistanceMatrix(this.basePoints, this.subbasePoints);
+
+        if (!this.distanceMatrix || this.distanceMatrix.length === 0) {
+            this.log('Error: Distance matrix could not be calculated.');
+            alert('Distance matrix calculation failed.');
+            return;
         }
-    }
 
-    class DistanceCalculationStrategy {
-        execute(ctx) {
-            ctx.log('Starting distance calculations...');
-            const matrix = ctx.getDistanceMatrix(ctx.basePoints, ctx.subbasePoints);
-            if (!matrix || matrix.length === 0) {
-                ctx.log('Error: Distance matrix could not be calculated.');
-                alert('Distance matrix calculation failed.');
-                throw new Error("Distance matrix calculation failed");
-            }
-            ctx.distanceMatrix = matrix;
-            ctx.log('Distance matrix calculated successfully.');
-            console.log('Distance Matrix:', matrix);
-        }
-    }
+        this.log('Distance matrix calculated successfully.');
+        console.log('Distance Matrix:', this.distanceMatrix); // Debugging log
 
-    const strategies = [
-        new ValidationStrategy('base'),
-        new ValidationStrategy('subbase'),
-        new DistanceCalculationStrategy()
-        // Do NOT include ClosestBaseFinderStrategy or ResultUpdaterStrategy here
-    ];
+        // Automatically find the closest bases
+        this.findClosestFromMatrix();
 
-    try {
-        for (const strategy of strategies) {
-            strategy.execute(context);
-        }
-    } catch (error) {
-        console.error('Distance calculation aborted:', error.message);
-    } finally {
-        this.calculateBtn.disabled = false; // Re-enable button
-    }
+        // Log the closestBases array for debugging
+        console.log('Closest Bases:', this.closestBases);
 
-    // After successful distance calculation:
-    const findClosestBtn = document.getElementById('findClosestBtn');
-    if (findClosestBtn) {
-        findClosestBtn.disabled = false;
+        // Update the result content after finding the closest bases
+        updateResultContent(this.closestBases);
+
+        this.calculateBtn.disabled = false; // Enable button
     }
-}
 
 
     // Placeholder for address handling logic
