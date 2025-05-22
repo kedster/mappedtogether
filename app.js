@@ -172,12 +172,22 @@ class DistanceApp {
 
         if (!this.basePoints || this.basePoints.length === 0) {
             this.log('Error: Base points are not loaded.');
-            alert('Please upload the Base CSV file.');
+            alert(
+                'Please upload the Base CSV file in the correct format for your selected lookup type.\n\n' +
+                'You have selected "Latitude/Longitude" lookup, but your CSV does not match the expected format.\n\n' +
+                'If your file contains addresses (not latitude/longitude), please scroll up and select "Address" as the lookup type, then upload your file again.\n\n' +
+                'Expected CSV columns for "Latitude/Longitude" lookup: Name, Latitude, Longitude'
+            );
             return;
         }
         if (!this.subbasePoints || this.subbasePoints.length === 0) {
             this.log('Error: Subbase points are not loaded.');
-            alert('Please upload the Subbase CSV file.');
+            alert(
+                'Please upload the Base CSV file in the correct format for your selected lookup type.\n\n' +
+                'You have selected "Latitude/Longitude" lookup, but your CSV does not match the expected format.\n\n' +
+                'If your file contains addresses (not latitude/longitude), please scroll up and select "Address" as the lookup type, then upload your file again.\n\n' +
+                'Expected CSV columns for "Latitude/Longitude" lookup: Name, Latitude, Longitude'
+            );
             return;
         }
 
@@ -602,6 +612,10 @@ class DistanceApp {
                   .addTo(this.map)
                   .bindPopup(
                     `<b>Subbase:</b> ${subbase.name}<br>
+                        <b>Closest Base:</b> ${base.name}<br>
+                        <b>Distance:</b> ${this.distanceMatrix[this.basePoints.indexOf(base)][this.subbasePoints.indexOf(subbase)]} mi<br>
+                        <b>Closest Subbase:</b> ${subbase.name}<br>
+                        <b>Subbase Lat/Lon:</b> ${subbase.lat.toFixed(5)}, ${subbase.lon.toFixed(5)}<br>
                      <b>Lat/Lon:</b> ${subbase.lat.toFixed(5)}, ${subbase.lon.toFixed(5)}`
                   );
 
