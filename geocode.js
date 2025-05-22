@@ -13,12 +13,11 @@ export async function geocodeWithHere(query, rowIndex) {
         const response = await fetch(url);
         const data = await response.json();
 
-        if (data.results && data.results.length > 0) {
-            const result = data.results[0];
+        if (typeof data.lat === "number" && typeof data.lng === "number") {
             return {
-                lat: result.geometry.location.lat,
-                lng: result.geometry.location.lng,
-                label: result.formatted_address
+                lat: data.lat,
+                lng: data.lng,
+                label: query // No formatted address returned, so just echo the query
             };
         }
     } catch (e) {
