@@ -248,17 +248,14 @@ class DistanceApp {
                                     const city = (normalizedRow['city'] || '').trim();
                                     const state = (normalizedRow['state'] || '').trim();
                                     const zip = (normalizedRow['zip'] || normalizedRow['zipcode'] || normalizedRow['postal'] || '').toString().trim();
-                                    let searchTerm = '';
-                                    if (rawAddress && (!city && !state && !zip)) {
-                                        searchTerm = rawAddress;
-                                    } else if (rawAddress) {
-                                        searchTerm = rawAddress;
-                                        if (city) searchTerm += `, ${city}`;
-                                        if (state) searchTerm += `, ${state}`;
-                                        if (zip) searchTerm += `, ${zip}`;
-                                    } else if (city || state || zip) {
-                                        searchTerm = [city, state, zip].filter(Boolean).join(', ');
-                                    }
+                                    const addressParts = [];
+                                    if (normalizedRow['name']) addressParts.push(normalizedRow['name']);
+                                    if (normalizedRow['address']) addressParts.push(normalizedRow['address']);
+                                    if (normalizedRow['street']) addressParts.push(normalizedRow['street']);
+                                    if (normalizedRow['city']) addressParts.push(normalizedRow['city']);
+                                    if (normalizedRow['state']) addressParts.push(normalizedRow['state']);
+                                    if (normalizedRow['zip']) addressParts.push(normalizedRow['zip']);
+                                    const searchTerm = addressParts.filter(Boolean).join(', ');
                                     return {
                                         name: normalizedRow['name'] || `Row ${i + 1}`,
                                         searchTerm,
