@@ -235,6 +235,12 @@ class DistanceApp {
                                 const firstColKey = headers && headers.length > 0 ? headers[0] : null;
 
                                 const addressRows = data.map((row, i) => {
+                                    // Normalize keys to lowercase for flexible access
+                                    const normalizedRow = {};
+                                    Object.keys(row).forEach(k => {
+                                        normalizedRow[k.toLowerCase()] = row[k];
+                                    });
+
                                     // Always treat the first column as 'name'
                                     let name = row[firstColKey] || `Row ${i + 1}`;
 
@@ -577,13 +583,27 @@ class DistanceApp {
             const baseLatLng = [base.lat, base.lon];
 
             // Add a red circle marker for the base
-            L.circleMarker(baseLatLng, baseMarkerOptions).addTo(this.map).bindPopup(`Base: ${base.name}`);
+            L.circleMarker(baseLatLng, baseMarkerOptions)
+              .addTo(this.map)
+              .bindPopup(
+                `<b>Base:</b> ${base.name}<br>
+                    <b>Closest Subbases:</b> ${subbases.map(sub => sub.name).join(', ')}<br>
+                    <b>Distance:</b> ${this.distanceMatrix[this.basePoints.indexOf(base)][this.subbasePoints.indexOf(subbases[0])].toFixed(2)} mi<br>
+                    <b>Closest Base:</b> ${base.name}<br>
+                    <b>Base Lat/Lon:</b> ${base.lat.toFixed(5)}, ${base.lon.toFixed(5)}<br>
+                 <b>Lat/Lon:</b> ${base.lat.toFixed(5)}, ${base.lon.toFixed(5)}`
+              );
 
             subbases.forEach(subbase => {
                 const subbaseLatLng = [subbase.lat, subbase.lon];
 
                 // Add a blue circle marker for the subbase
-                L.circleMarker(subbaseLatLng, subbaseMarkerOptions).addTo(this.map).bindPopup(`Subbase: ${subbase.name}`);
+                L.circleMarker(subbaseLatLng, subbaseMarkerOptions)
+                  .addTo(this.map)
+                  .bindPopup(
+                    `<b>Subbase:</b> ${subbase.name}<br>
+                     <b>Lat/Lon:</b> ${subbase.lat.toFixed(5)}, ${subbase.lon.toFixed(5)}`
+                  );
 
                 // Draw a black line between the base and the subbase
                 L.polyline([baseLatLng, subbaseLatLng], { color: 'black', weight: 2 }).addTo(this.map);
@@ -655,12 +675,13 @@ function updateResultContent(closestBases) {
       <tbody>
   `;
 
-    closestBases.forEach(({ subbase, closestBase, distance }) => {
+    closestBases.forEach(({ subbase, closestBase, distance, lat, lon }) => {
         tableHTML += `
       <tr>
         <td>${subbase.name}</td>
         <td>${closestBase.name}</td>
         <td>${distance.toFixed(2)}</td>
+        <td>${lat.toFixed(4)}, ${lon.toFixed(4)}</td>
       </tr>
     `;
     });
