@@ -322,3 +322,24 @@ body:has(input[name="inputType"][value="address"]:checked) .example-address {
     margin-right: auto;
   }
 }
+
+.header-btn {
+  display: inline-block;
+  font-size: 1em;
+  padding: 6px 16px;
+  margin: 0 4px;
+  background: #2066cc;
+  color: #fff !important;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.header-btn:hover,
+.header-btn:focus {
+  background: #174a7c;
+  color: #fff !important;
+  text-decoration: none;
+}
